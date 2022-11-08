@@ -7,9 +7,6 @@ trigger:
 - Develop
 - master
 
-trigger:
-- master
-
 pool:
   vmImage: 'windows-2022'
 
