@@ -7,53 +7,32 @@ trigger:
 - Develop
 - master
 
-pool:
-  vmImage: ubuntu-latest
+trigger:
+- master
 
-variables:
-  buildConfiguration: 'Release'
+pool:
+  vmImage: 'windows-2022'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
-- task: UseDotNet@2
-  displayName: .NET Version
+- task: CmdLine@2
   inputs:
-        packageType: 'sdk'
-        version: '$(DotNetVersion)'
+    script: 'dotnet workload install maui'
 
-- task: Bash@3
-  displayName: Install MAUI
-  inputs:
-        targetType: 'inline'
-        script: |
-          dotnet nuget locals all --clear 
-          dotnet workload install maui --source https://aka.ms/dotnet6/nuget/index.json --source https://api.nuget.org/v3/index.json
-          dotnet workload install android ios maccatalyst tvos macos maui wasm-tools --source https://aka.ms/dotnet6/nuget/index.json --source https://api.nuget.org/v3/index.json
-
-# ...
-# do this after other tasks such as building
-- task: Bash@3
-  displayName: Build Android App
-  inputs:
-    targetType: 'inline'
-    script: |
-          cd 6.0/ElevatorMobileApplication
-          dotnet publish -f net6.0-android -c Release
 - task: DotNetCoreCLI@2
   inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
-- task: DotNetCoreCLI@2
-  inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: True
+    command: 'build'
+    projects: 'MyMAUIProject.sln'
+    arguments: '-c Release -f net6.0-android'
 
-# this code takes all the files in $(Build.ArtifactStagingDirectory) and uploads them as an artifact of your build.
-- task: PublishPipelineArtifact@1
+- task: CopyFiles@2
   inputs:
-    targetPath: '$(Build.ArtifactStagingDirectory)' 
-    artifactName: 'AgileWebApi'
+    SourceFolder: '$(agent.builddirectory)'
+    Contents: '*/-Signed.aab'
+    TargetFolder: '$(build.artifactstagingdirectory)'
+    flattenFolders: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
