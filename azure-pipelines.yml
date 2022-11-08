@@ -18,7 +18,7 @@ steps:
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'
-    projects: 'MyMAUIProject.sln'
+    projects: 'ElevatorMobileApplication.App'
     arguments: '-c Release -f net6.0-android'
 
 - task: CopyFiles@2
