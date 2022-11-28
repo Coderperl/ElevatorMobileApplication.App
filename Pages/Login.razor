@@ -1,0 +1,44 @@
+﻿@page "/Login"
+@using ElevatorMobileApplication.Models
+@using Newtonsoft.Json;
+@using System.Text
+<h3>Login</h3>
+
+<EditForm Model="login" OnValidSubmit="@OnPostLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <InputText id="Username" @bind-Value="login.Username" />
+
+    <InputText id="Password" type="password" @bind-Value="login.Password" />
+
+    <button type="submit">Login</button>
+
+</EditForm>
+
+
+@code {
+    private LoginModel login = new();
+
+    private async void OnPostLogin() {
+        using var httpClient = new HttpClient();
+
+        var payload = JsonConvert.SerializeObject(login);
+        var httpContent = new StringContent(payload, Encoding.UTF8, "application/json");
+
+        var data = new HttpResponseMessage();
+        try 
+        {
+            data = await httpClient.PostAsync("https://localhost:7169/api/login", httpContent);
+        } catch {
+
+        }
+        if(data.IsSuccessStatusCode){
+            User user = new User();
+            user = JsonConvert.DeserializeObject<User>(data.Content.ReadAsStringAsync().Result);
+
+            await SecureStorage.Default.SetAsync("username", user.userName);
+            await SecureStorage.Default.SetAsync("Id", user.Id);
+        }
+    }
+}

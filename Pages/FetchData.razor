@@ -34,11 +34,13 @@ else
 			}
 		</tbody>
 	</table>
+
+		<h1>@testString.Result</h1>
 }
 
 @code {
 	private WeatherForecast[] forecasts;
-
+	Task<string> testString = SecureStorage.Default.GetAsync("test");
 	protected override async Task OnInitializedAsync()
 	{
 		forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
