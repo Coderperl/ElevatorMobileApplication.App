@@ -1,0 +1,30 @@
+﻿@page "/caseDetailsPage"
+@using ElevatorMobileApplication.Models
+@using ElevatorMobileApplication.Services
+@inject ICaseService CaseService;
+<h3>CaseDetailsPage</h3>
+<p>Case Name @caseDetails.Name</p>
+<p>Case Created by @caseDetails.CreatedBy</p>
+ @foreach (var comment in @caseDetails.Comments)
+ {
+     @comment.Issue;
+ }
+<p>Case Created @caseDetails.CaseCreated</p>
+<p>Case ENded @caseDetails.CaseEnded</p>
+<p>Elevator @caseDetails.Elevator.Name</p>
+<p>Status @caseDetails.Status</p>
+
+
+
+
+@code {
+    Case caseDetails = new Case();
+
+    //[Parameter] 
+    //public int id { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        var Case = await CaseService.GetCaseByIdAsync(1);
+       caseDetails = Case;
+    }
+}
