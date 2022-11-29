@@ -1,25 +1,49 @@
 ﻿@page "/counter"
+@using ElevatorAdministrationApplication.Models
+@using Newtonsoft.Json
+@inject NavigationManager navigationManager
 
 <h1>Counter</h1>
 
 <h1>@testString.Result</h1>
 <h1>@SecureStorage.Default.GetAsync("username").Result</h1>
+<h1>@SecureStorage.Default.GetAsync("Id").Result</h1>
 
 <p role="status">Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="Logout">Click me</button>
 
+@foreach (var item in elevators)
+{
+    <h1>@item.Name</h1>
+}
 @code {
     private int currentCount = 0;
+    List<ElevatorModel> elevators = new List<ElevatorModel>();
     Task<string> testString = SecureStorage.Default.GetAsync("test");
-
-    private void IncrementCount()
+    private void Logout()
     {
-        currentCount++;
+        SecureStorage.Default.RemoveAll();
+
+        navigationManager.NavigateTo("/Login");
     }
 
     protected override async Task OnInitializedAsync()
     {
-        await SecureStorage.Default.SetAsync("test", "123");
+        string id = await SecureStorage.Default.GetAsync("Id");
+        base.OnInitialized();
+        if (id == null)
+        {
+            navigationManager.NavigateTo("/Login");
+
+        }
+
+        using var httpClient = new HttpClient();
+
+
+        var returnData = await httpClient.GetAsync($"http://10.0.2.2:7169/api/Elevator");
+        var stuff = await returnData.Content.ReadAsStringAsync();
+
+        elevators = JsonConvert.DeserializeObject<List<ElevatorModel>>(stuff);
     }
 }
