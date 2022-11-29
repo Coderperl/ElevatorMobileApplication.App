@@ -34,8 +34,7 @@
 
         var data = new HttpResponseMessage();
         try 
-        {
-            //data = httpClient.PostAsync("http://localhost:7169/api/login", httpContent).Result;
+        {  
             data = await httpClient.SendAsync(httpRequest);
         } catch {
 
@@ -48,7 +47,7 @@
             await SecureStorage.Default.SetAsync("username", user.UserName);
             await SecureStorage.Default.SetAsync("Id", user.Id);
 
-            navigationManager.NavigateTo("/Counter");
+            navigationManager.NavigateTo("/CasesList");
         }
     }
 }
