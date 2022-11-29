@@ -9,9 +9,7 @@ namespace ElevatorMobileApplication.Models
 {
     public class User
     {
-        [JsonProperty("id")]
         public string Id { get; set; }
-        [JsonProperty("userName")]
-        public string userName { get; set; }
+        public string UserName { get; set; }
     }
 }
