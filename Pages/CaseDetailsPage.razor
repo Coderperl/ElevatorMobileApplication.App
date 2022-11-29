@@ -11,12 +11,11 @@
 <p>Case Created by: @CaseDetails.CreatedBy</p>
 <p>Case Created: @CaseDetails.CaseCreated</p>
 <p>Case Ended: @CaseDetails.CaseEnded</p>
-@*<p>Elevator: @CaseDetails.Elevator.Name</p>*@
 <p>Status: @CaseDetails.Status</p>
 <p>Elevator Name: @elevator.Name</p>
 @foreach (var comment in @comments)
  {
-    <p>@comment.Issue;</p>
+    <p>Comments: @comment.Issue;</p>
  }
 
 
