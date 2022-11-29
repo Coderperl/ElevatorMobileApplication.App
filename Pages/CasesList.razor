@@ -1,11 +1,10 @@
 ﻿@page "/CasesList"
 @using ElevatorMobileApplication.Models
-@using System.Net.Http.Json;
 @using ElevatorMobileApplication.Services;
 @inject ICaseService CaseService;
 
 <h3>CasesList</h3>
-@if (Cases == null)
+@if (MyCases == null)
 {
     <p>Loading . . .</p>
 }
@@ -14,12 +13,11 @@ else
 <ul>
     @foreach (var item in MyCases)
     {
-        <li>@item.Name</li>
+            <li><a href="pages/CaseDetailsPage">@item.Name</a></li>
     }
 </ul>
 }
 @code {
-    List<Case> Cases;
     List<Case> MyCases = new List<Case>();
 
     protected override async Task OnInitializedAsync() 
@@ -28,7 +26,7 @@ else
 
         foreach (var item in allCases)
         {
-            if (item.Technician.Name == "Matthew")
+            if (item.Technician.Name == "Ricardo")
             {
                 MyCases.Add(item);
             }

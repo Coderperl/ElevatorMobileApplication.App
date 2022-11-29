@@ -31,6 +31,23 @@ namespace ElevatorMobileApplication.Services
             }
 
         }
-        
+
+        public async Task<Case> GetCaseByIdAsync(int id)
+        {
+            var Case = new Case();
+            Case.Id = id;
+            var client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(Url + id);
+            if (response.IsSuccessStatusCode)
+            {
+                string content = await response.Content.ReadAsStringAsync();
+                Case = JsonConvert.DeserializeObject<Case>(content);
+                return Case;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
