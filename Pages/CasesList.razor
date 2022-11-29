@@ -1,0 +1,37 @@
+﻿@page "/CasesList"
+@using ElevatorMobileApplication.Models
+@using System.Net.Http.Json;
+@using ElevatorMobileApplication.Services;
+@inject ICaseService CaseService;
+
+<h3>CasesList</h3>
+@if (Cases == null)
+{
+    <p>Loading . . .</p>
+}
+else
+{
+<ul>
+    @foreach (var item in MyCases)
+    {
+        <li>@item.Name</li>
+    }
+</ul>
+}
+@code {
+    List<Case> Cases;
+    List<Case> MyCases = new List<Case>();
+
+    protected override async Task OnInitializedAsync() 
+    {
+        var allCases = await CaseService.GetCasesAsync();
+
+        foreach (var item in allCases)
+        {
+            if (item.Technician.Name == "Matthew")
+            {
+                MyCases.Add(item);
+            }
+        }
+    }
+}
