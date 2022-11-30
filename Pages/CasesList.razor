@@ -2,6 +2,7 @@
 @using ElevatorMobileApplication.Models
 @using ElevatorMobileApplication.Services;
 @inject ICaseService CaseService;
+@inject NavigationManager Navigation
 
 <h3>CasesList</h3>
 @if (MyCases == null)
@@ -13,20 +14,27 @@ else
 <ul>
     @foreach (var item in MyCases)
     {
-            <li><a href="pages/CaseDetailsPage">@item.Name</a></li>
+            <li><a @onclick="() => Navigera(item.Id)">@item.Name</a></li>
     }
 </ul>
 }
 @code {
     List<Case> MyCases = new List<Case>();
 
+    void Navigera(int id)
+    {
+        Navigation.NavigateTo($"/CaseDetailsPage/{id}");
+    }
+
     protected override async Task OnInitializedAsync() 
     {
         var allCases = await CaseService.GetCasesAsync();
 
+        var user = SecureStorage.Default.GetAsync("username").Result;
+
         foreach (var item in allCases)
         {
-            if (item.Technician.Name == "Ricardo")
+            if (item.Technician.Name == user)
             {
                 MyCases.Add(item);
             }
