@@ -1,7 +1,10 @@
 ﻿@page "/CaseDetailsPage/{id:int}"
 @using ElevatorMobileApplication.Models
 @using ElevatorMobileApplication.Services
-@inject ICaseService CaseService;
+@using Newtonsoft.Json;
+@using System.Text;
+@inject ICaseService caseService;
+@inject NavigationManager navigationManager
 
 <h3>Today's Menu Lunch</h3>
 <hr/>
@@ -11,31 +14,90 @@
 <p>Case Created by: @CaseDetails.CreatedBy</p>
 <p>Case Created: @CaseDetails.CaseCreated</p>
 <p>Case Ended: @CaseDetails.CaseEnded</p>
-<p>Status: @CaseDetails.Status</p>
+
+<select @onchange="UpdateCaseStatus">
+    
+    @foreach (var item in CaseStatus)
+    {           
+        if (item == CaseDetails.Status)
+        {
+            <option selected value="-1">@CaseDetails.Status</option>            
+        } 
+        else
+        {
+            <option value=@item>@item</option>
+        }
+    }
+</select>
 <p>Elevator Name: @elevator.Name</p>
+<p>Comments:
 @foreach (var comment in @comments)
  {
-    <p>Comments: @comment.Issue;</p>
+     <br />     
+     @comment.Issue
  }
+</p>
+<EditForm Model="caseUpdate" OnValidSubmit="@OnPostCase" class="">
+    
+    <InputText id="Comment" @bind-Value="caseUpdate.Comment" />
+    <button type="submit">Add Comment</button>
 
-
-
+ </EditForm>
 @code {
-    Case CaseDetails = new Case();    
-    Technician tech = new Technician();
-    Elevator elevator = new Elevator();
-    List<Comment> comments = new List<Comment>();
+    public Case CaseDetails = new Case();    
+    public Technician tech = new Technician();
+    public Elevator elevator = new Elevator();
+    public List<Comment> comments = new List<Comment>();
+    public CaseUpdate caseUpdate = new();
+
+    List<string> CaseStatus = new List<string>() { "Started", "Not Started", "Resolved"};
+    string SelectedString = "";
 
     [Parameter] 
     public int id { get; set; }
 
+    async void UpdateCaseStatus(ChangeEventArgs e)
+    {       
+        CaseDetails.Status = e.Value.ToString();
+        await OnPostCase();   
+    }
     protected override async Task OnInitializedAsync()
     {        
-        var currentcase = await CaseService.GetCaseByIdAsync(this.id);
+        var currentcase = await caseService.GetCaseByIdAsync(this.id);
         CaseDetails = currentcase;
         tech.Name = currentcase.Technician.Name;
         elevator.Name = currentcase.Elevator.Name;
         comments = currentcase.Comments;
 
     }
+    private async Task OnPostCase()
+    {
+        caseUpdate.TechnicianId = CaseDetails.Technician.Id;
+        caseUpdate.CaseEnded = CaseDetails.CaseEnded;
+        caseUpdate.Status = CaseDetails.Status;
+        
+        using var httpClient = new HttpClient();
+        
+        var payload = JsonConvert.SerializeObject(caseUpdate);
+        var httpContent = new StringContent(payload, Encoding.UTF8, "application/json");
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Put, $"http://10.0.2.2:7169/api/case/{this.id}")
+            {
+                Content = httpContent
+            };
+
+        var data = new HttpResponseMessage();
+
+        try
+        {
+            data = await httpClient.SendAsync(httpRequest);            
+        }
+        catch
+        {
+
+        }        
+    }
 }
+
+
+
