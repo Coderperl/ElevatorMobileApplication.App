@@ -1,0 +1,41 @@
+﻿@page "/CaseDetailsPage/{id:int}"
+@using ElevatorMobileApplication.Models
+@using ElevatorMobileApplication.Services
+@inject ICaseService CaseService;
+
+<h3>Today's Menu Lunch</h3>
+<hr/>
+<br/>
+<p>Technician Name: @tech.Name</p>
+<p>Case Name: @CaseDetails.Name</p>
+<p>Case Created by: @CaseDetails.CreatedBy</p>
+<p>Case Created: @CaseDetails.CaseCreated</p>
+<p>Case Ended: @CaseDetails.CaseEnded</p>
+<p>Status: @CaseDetails.Status</p>
+<p>Elevator Name: @elevator.Name</p>
+@foreach (var comment in @comments)
+ {
+    <p>Comments: @comment.Issue;</p>
+ }
+
+
+
+@code {
+    Case CaseDetails = new Case();    
+    Technician tech = new Technician();
+    Elevator elevator = new Elevator();
+    List<Comment> comments = new List<Comment>();
+
+    [Parameter] 
+    public int id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {        
+        var currentcase = await CaseService.GetCaseByIdAsync(this.id);
+        CaseDetails = currentcase;
+        tech.Name = currentcase.Technician.Name;
+        elevator.Name = currentcase.Elevator.Name;
+        comments = currentcase.Comments;
+
+    }
+}

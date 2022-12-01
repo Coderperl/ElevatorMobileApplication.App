@@ -1,4 +1,4 @@
-﻿@inject NavigationManager navigationManager
+@inject NavigationManager navigationManager
 @if (!string.IsNullOrEmpty(SecureStorage.Default.GetAsync("Id").Result))
 { 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -11,36 +11,53 @@
 </div>
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+
     <nav class="flex-column">
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-            </NavLink>
-        </div>
+			<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+				<span class="oi oi-home" aria-hidden="true"></span> Home
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="counter">
+				<span class="oi oi-plus" aria-hidden="true"></span> Counter
+			</NavLink>
+		</div>
+		<div class="nav-item px-3">
+			<NavLink class="nav-link" href="fetchdata">
+				<span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+			</NavLink>
+		</div>
 
-        @if (string.IsNullOrEmpty(SecureStorage.Default.GetAsync("Id").Result))
-        {
+    @if (string.IsNullOrEmpty(SecureStorage.Default.GetAsync("Id").Result))
+    {
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="Login">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Login
+            </NavLink>
+        </div>
+    } else
+    {
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="Login">
-                    <span class="oi oi-list-rich" aria-hidden="true"></span> Login
+                <NavLink class="nav-link" @onclick="Logout">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Logout
                 </NavLink>
             </div>
-        } else
-        {
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="Logout">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Logout
-                    </NavLink>
-                </div>
-        }
+    }
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="CasesList">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> List of Cases
+        </NavLink>
+    </div>
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="CaseDetailsPage">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> Detailspage
+        </NavLink>
+    </div>
 
-    </nav>
+
+  </nav>
 
 </div>
 }

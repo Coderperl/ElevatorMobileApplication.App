@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components.WebView.Maui;
 using ElevatorMobileApplication.Data;
+using ElevatorMobileApplication.Services;
 
 namespace ElevatorMobileApplication;
 
@@ -16,11 +17,12 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddMauiBlazorWebView();
-		
+
 		#if DEBUG
 		builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
-		
+		builder.Services.AddSingleton<ICaseService, CaseService>();
+
 		builder.Services.AddSingleton<WeatherForecastService>();
 
 		return builder.Build();
