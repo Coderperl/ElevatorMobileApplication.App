@@ -75,9 +75,9 @@
         caseUpdate.TechnicianId = CaseDetails.Technician.Id;
         caseUpdate.CaseEnded = CaseDetails.CaseEnded;
         caseUpdate.Status = CaseDetails.Status;
-        
+
         using var httpClient = new HttpClient();
-        
+
         var payload = JsonConvert.SerializeObject(caseUpdate);
         var httpContent = new StringContent(payload, Encoding.UTF8, "application/json");
 
@@ -90,7 +90,8 @@
 
         try
         {
-            data = await httpClient.SendAsync(httpRequest);            
+            data = await httpClient.SendAsync(httpRequest);
+            navigationManager.NavigateTo($"/CaseDetailsPage/{CaseDetails.Id}", true);
         }
         catch
         {

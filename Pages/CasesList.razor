@@ -34,7 +34,7 @@ else
 
         foreach (var item in allCases)
         {
-            if (item.Technician.Name == user)
+            if (item.Technician.Name == user && item.Status != "Resolved")
             {
                 MyCases.Add(item);
             }
