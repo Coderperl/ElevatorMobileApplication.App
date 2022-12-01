@@ -1,15 +1,20 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-	<div class="container-fluid">
-		<a class="navbar-brand" href="">ElevatorMobileApplication</a>
-		<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-	</div>
+@inject NavigationManager navigationManager
+@if (!string.IsNullOrEmpty(SecureStorage.Default.GetAsync("Id").Result))
+{ 
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">ElevatorMobileApplication</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
 </div>
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-	<nav class="flex-column">
-		<div class="nav-item px-3">
+
+    <nav class="flex-column">
+
+        <div class="nav-item px-3">
 			<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
 				<span class="oi oi-home" aria-hidden="true"></span> Home
 			</NavLink>
@@ -25,31 +30,53 @@
 			</NavLink>
 		</div>
 
-		<div class="nav-item px-3">
-			<NavLink class="nav-link" href="Login">
-				<span class="oi oi-list-rich" aria-hidden="true"></span> Login
-			</NavLink>
-		</div>
+    @if (string.IsNullOrEmpty(SecureStorage.Default.GetAsync("Id").Result))
+    {
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="CasesList">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> List of Cases
+            <NavLink class="nav-link" href="Login">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Login
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="CaseDetailsPage">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Detailspage
-            </NavLink>
-        </div>
-	</nav>
+    } else
+    {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" @onclick="Logout">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Logout
+                </NavLink>
+            </div>
+    }
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="CasesList">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> List of Cases
+        </NavLink>
+    </div>
+    <div class="nav-item px-3">
+        <NavLink class="nav-link" href="CaseDetailsPage">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> Detailspage
+        </NavLink>
+    </div>
+
+
+  </nav>
+
 </div>
-
+}
 @code {
-	private bool collapseNavMenu = true;
+    private bool collapseNavMenu = true;
 
-	private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
-	private void ToggleNavMenu()
-	{
-		collapseNavMenu = !collapseNavMenu;
-	}
+    private void Logout()
+    {
+        SecureStorage.Default.RemoveAll();
+
+        navigationManager.NavigateTo("/");
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    
 }
