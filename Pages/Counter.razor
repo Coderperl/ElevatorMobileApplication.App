@@ -1,4 +1,6 @@
-﻿@page "/counter"
+﻿@page "/"
+
+
 @using ElevatorAdministrationApplication.Models
 @using Newtonsoft.Json
 @inject NavigationManager navigationManager
@@ -31,11 +33,9 @@
     protected override async Task OnInitializedAsync()
     {
         string id = await SecureStorage.Default.GetAsync("Id");
-        base.OnInitialized();
-        if (id == null)
+        if(string.IsNullOrEmpty(id))
         {
             navigationManager.NavigateTo("/Login");
-
         }
 
         using var httpClient = new HttpClient();
