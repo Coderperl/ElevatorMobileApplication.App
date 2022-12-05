@@ -1,0 +1,74 @@
+﻿@page "/"
+
+@using ElevatorMobileApplication.Models
+@using Newtonsoft.Json;
+@using System.Text
+@inject NavigationManager navigationManager
+<h3 class="text-center">Please login to your account</h3>
+<div class="center">
+    <EditForm Model="login" OnValidSubmit="@OnPostLogin" class="">
+        <div class="txt_field">
+            <InputText id="Username" @bind-Value="login.Username" />
+            <label>username</label>
+        </div>
+        <div class="txt_field">
+            <InputText id="Password" type="password" @bind-Value="login.Password" />
+            <label>password</label>
+        </div>
+        <button class="submitButton" type="submit">Login</button>
+
+        @if(!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <span class="ErrorMessage">@ErrorMessage</span>
+        }
+        
+    </EditForm>
+</div>
+
+@code {
+    private LoginModel login = new();
+
+    string ErrorMessage;
+
+    private async Task OnPostLogin()
+    {
+        using var httpClient = new HttpClient();
+
+        var payload = JsonConvert.SerializeObject(login);
+        var httpContent = new StringContent(payload, Encoding.UTF8, "application/json");
+
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, "http://10.0.2.2:7169/api/login")
+            {
+                Content = httpContent
+            };
+
+        var data = new HttpResponseMessage();
+
+        try
+        {        
+            data = await httpClient.SendAsync(httpRequest);
+        }
+        catch
+        {
+
+        }
+        if (data.IsSuccessStatusCode)
+        {
+            User user = new User();
+
+            user = JsonConvert.DeserializeObject<User>(await data.Content.ReadAsStringAsync());
+
+            await SecureStorage.Default.SetAsync("username", user.UserName);
+            await SecureStorage.Default.SetAsync("Id", user.Id);
+            
+            navigationManager.NavigateTo("/CasesList");
+
+        }
+        else
+        {
+            ErrorMessage = "Wrong username or password";
+
+
+        }
+    }
+}

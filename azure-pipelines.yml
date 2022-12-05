@@ -1,0 +1,141 @@
+# trigger:
+# - Develop
+# - master
+
+# pool:
+#   vmImage: 'windows-2022'
+
+# steps:
+# - task: UseDotNet@2
+#   displayName: 'Install .NET sdk'
+#   inputs:
+#     packageType: sdk
+#     version: 6.0.x
+#     installationPath: $(Agent.ToolsDirectory)/dotnet
+
+# - task: CmdLine@2
+#   inputs:
+#     script: 'dotnet workload install maui'
+
+# - task: DotNetCoreCLI@2
+#   inputs:
+#     command: 'build'
+#     projects: 'ElevatorMobileApplication.App'
+#     arguments: '-c Release -f net6.0-android'
+
+# - task: CopyFiles@2
+#   displayName: 'Copy file from Build to Staging'
+#   inputs:
+#     SourceFolder: '$(Agent.BuildDirectory)'
+#     Contents: '**/*'
+#     TargetFolder: '$(Build.ArtifactStagingDirectory)'
+#     CleanTargetFolder: true
+#     OverWrite: true
+
+# - task: PublishBuildArtifacts@1
+#   displayName: 'Publish the Staging Files.'
+#   inputs:
+#     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+#     ArtifactName: 'drop'
+#     publishLocation: 'Container'
+
+trigger:
+- Develop
+- master
+
+variables:
+    BuildConfiguration: Release
+    DotNetVersion: 6.0.300
+    VSVERSION: 17/pre
+
+stages:
+- stage: BuildAndroid
+  jobs:
+  - job: BuildMAUIApps
+    displayName: Build  ElevatorMobileApplication.App App
+    pool:
+      vmImage: 'windows-2022'
+      demands:
+      - MSBuild
+      
+    steps:
+    
+    - task: UseDotNet@2
+      displayName: .NET Version
+      inputs:
+        packageType: 'sdk'
+        version: '$(DotNetVersion)'
+    
+    - task: Bash@3
+      displayName: Install MAUI
+      inputs:
+        targetType: 'inline'
+        script: |
+          dotnet nuget locals all --clear 
+          dotnet workload install maui --source https://aka.ms/dotnet6/nuget/index.json --source https://api.nuget.org/v3/index.json
+          dotnet workload install android ios maccatalyst tvos macos maui wasm-tools --source https://aka.ms/dotnet6/nuget/index.json --source https://api.nuget.org/v3/index.json
+    
+    - task: Bash@3
+      displayName: Restore nuget
+      inputs:
+        targetType: 'inline'
+        script: |
+          dotnet restore ElevatorMobileApplication.sln  
+    - task: Bash@3
+      displayName: Build Android App
+      inputs:
+        targetType: 'inline'
+        script: |
+          dotnet build -f net6.0-android -c Release
+    
+
+    - task: CopyFiles@2
+      inputs:
+        Contents: |
+          **\**\ElevatorMobileApplication\bin\Release\net6.0-android\publish\*.apk
+          ElevatorMobileApplication\bin\Release\net6.0-android\publish\*.apk
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop_android'
+        publishLocation: 'Container'
+
+- stage: BuildWindows
+  jobs:
+  - job: BuildMAUIApps
+    displayName: Build  ElevatorMobileApplication.App App
+    pool:
+      vmImage: 'windows-2022'
+      demands:
+      - MSBuild
+      
+    steps:
+    - task: UseDotNet@2
+      displayName: .NET Version
+      inputs:
+        packageType: 'sdk'
+        version: '$(DotNetVersion)'
+    
+    - task: PowerShell@2
+      displayName: Install .NET MAUI
+      inputs:
+        targetType: 'inline'
+        script: |
+          & dotnet nuget locals all --clear
+          & dotnet workload install maui --source https://aka.ms/dotnet6/nuget/index.json --source https://api.nuget.org/v3/index.json
+          & dotnet workload install android ios maccatalyst tvos macos maui wasm-tools maui-maccatalyst --source https://aka.ms/dotnet6/nuget/index.json --source https://api.nuget.org/v3/index.json
+    
+    - task: PowerShell@2
+      displayName: Build Windows MSIX
+      inputs:
+        targetType: 'inline'
+        script: |
+          dotnet publish -f net6.0-windows10.0.19041.0 -c Release
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop_windows'
+        publishLocation: 'Container'
